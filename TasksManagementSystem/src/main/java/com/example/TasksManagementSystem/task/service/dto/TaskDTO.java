@@ -1,4 +1,4 @@
-package task.service.dto;
+package com.example.TasksManagementSystem.task.service.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

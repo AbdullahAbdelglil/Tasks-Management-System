@@ -1,4 +1,4 @@
-package task.service;
+package com.example.TasksManagementSystem.task.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -6,10 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import task.entity.Task;
-import task.repository.TaskRepository;
-import task.service.dto.TaskDTO;
-import task.service.mapper.TaskMapper;
+import com.example.TasksManagementSystem.task.entity.Task;
+import com.example.TasksManagementSystem.task.repository.TaskRepository;
+import com.example.TasksManagementSystem.task.service.dto.TaskDTO;
+import com.example.TasksManagementSystem.task.service.mapper.TaskMapper;
 
 import java.util.List;
 

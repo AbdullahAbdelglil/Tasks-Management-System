@@ -1,11 +1,8 @@
-package task.service;
+package com.example.TasksManagementSystem.task.service;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import task.service.dto.TaskDTO;
+import com.example.TasksManagementSystem.task.service.dto.TaskDTO;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface TaskService {
 
