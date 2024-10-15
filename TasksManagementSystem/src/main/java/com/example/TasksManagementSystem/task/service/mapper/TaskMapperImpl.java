@@ -2,15 +2,8 @@ package com.example.TasksManagementSystem.task.service.mapper;
 
 import com.example.TasksManagementSystem.task.entity.Task;
 import com.example.TasksManagementSystem.task.service.dto.TaskDTO;
-import javax.annotation.processing.Generated;
 
-@Generated(
-    value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-10-14T19:08:50+0300",
-    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.1 (Oracle Corporation)"
-)
-public class TaskMapperImpl implements TaskMapper {
-
+public class TaskMapperImpl implements TaskMapper{
     @Override
     public TaskDTO toDTO(Task task) {
         if ( task == null ) {

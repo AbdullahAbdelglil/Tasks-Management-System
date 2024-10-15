@@ -1,17 +1,15 @@
 package com.example.TasksManagementSystem.task.service.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TaskDTO {
+@ToString
+public class TaskDTO implements Serializable {
     private Long id;
 
     private String title;

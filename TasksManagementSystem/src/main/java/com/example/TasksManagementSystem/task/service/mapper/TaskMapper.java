@@ -5,7 +5,7 @@ import org.mapstruct.factory.Mappers;
 import com.example.TasksManagementSystem.task.entity.Task;
 import com.example.TasksManagementSystem.task.service.dto.TaskDTO;
 
-@Mapper
+
 public interface TaskMapper {
 
     TaskMapper INSTANCE = Mappers.getMapper(TaskMapper.class);

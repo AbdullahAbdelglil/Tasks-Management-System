@@ -1,9 +1,14 @@
 package com.example.TasksManagementSystem.task.service;
 
+import com.example.TasksManagementSystem.task.exception.TaskNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.TasksManagementSystem.task.entity.Task;
@@ -14,10 +19,11 @@ import com.example.TasksManagementSystem.task.service.mapper.TaskMapper;
 import java.util.List;
 
 @Service
-public class TaskServiceImpl implements TaskService{
+public class TaskServiceImpl implements TaskService {
 
-    private TaskRepository taskRepository;
+    private final TaskRepository taskRepository;
     private final Logger log = LoggerFactory.getLogger(TaskServiceImpl.class);
+    private final TaskMapper mapper = TaskMapper.INSTANCE;
 
     @Autowired
     public TaskServiceImpl(TaskRepository taskRepository) {
@@ -25,15 +31,19 @@ public class TaskServiceImpl implements TaskService{
     }
 
     @Override
+    @CachePut(value = "tasks", key = "#result.id")
+    @CacheEvict(value = "tasks", key = "'allTasks'")
     public TaskDTO save(TaskDTO taskDTO) {
         log.debug("Request to save task {}", taskDTO);
-        Task task = TaskMapper.INSTANCE.toEntity(taskDTO);
+        Task task = mapper.toEntity(taskDTO);
         task = taskRepository.save(task);
         log.info("Task saved successfully {}", task);
-        return TaskMapper.INSTANCE.toDTO(task);
+        return mapper.toDTO(task);
     }
 
     @Override
+    @CachePut(value = "tasks", key = "#id")
+    @CacheEvict(value = "tasks", key = "'allTasks'")
     public TaskDTO update(Long id, TaskDTO updatedTask) {
         Task existingTask = getTask(id);
 
@@ -59,56 +69,63 @@ public class TaskServiceImpl implements TaskService{
             existingTask.setIsSynced(updatedTask.getIsSynced());
         }
 
-        taskRepository.save(existingTask);
+        save(mapper.toDTO(existingTask));
         log.info("Task updated successfully with ID: {}", id);
-        return TaskMapper.INSTANCE.toDTO(existingTask);
+        return mapper.toDTO(existingTask);
     }
 
     @Override
+    @Cacheable(value = "tasks", key = "#id")
     @Transactional(readOnly = true)
     public TaskDTO findById(long id) {
         log.debug("Request to get task with ID: {}", id);
         Task existingTask = taskRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
+                .orElseThrow(() -> new TaskNotFoundException(id));
 
-        return TaskMapper.INSTANCE.toDTO(existingTask);
+        return mapper.toDTO(existingTask);
     }
 
     @Override
+    @Cacheable(value = "tasks")
     @Transactional(readOnly = true)
     public List<TaskDTO> findTasksByIsSynced(boolean isSynced) {
         log.debug("Request to get all tasks by isSynced {}", isSynced);
-        return taskRepository.findAllByIsSynced(isSynced).stream().map(TaskMapper.INSTANCE::toDTO).toList();
+        return taskRepository.findAllByIsSynced(isSynced).stream().map(mapper::toDTO).toList();
     }
 
     @Override
+    @Cacheable(value = "tasks", key = "'allTasks'")
     @Transactional(readOnly = true)
     public List<TaskDTO> findAll() {
         log.debug("Request to get all tasks");
-        return taskRepository.findAll().stream().map(TaskMapper.INSTANCE::toDTO).toList();
+        return taskRepository.findAll().stream().map(mapper::toDTO).toList();
     }
 
     @Override
-    public boolean delete(long id) {
+    @Caching(evict = {
+            @CacheEvict(value = "tasks", key = "#id"),
+            @CacheEvict(value = "tasks", key = "'allTasks'")
+    })
+    public void delete(long id) {
         log.debug("Request to delete task with ID: {}", id);
         Task task = getTask(id);
         taskRepository.delete(task);
         log.info("Task deleted successfully with ID: {}", id);
-        return true;
     }
 
     @Override
+    @CacheEvict(value = "tasks", key = "'allTasks'")
     public void deleteAll(List<Long> ids) {
         log.debug("Request to delete all tasks with IDs: {}", ids);
-        for(long id: ids) {
+        for (long id : ids) {
             delete(id);
         }
         log.info("All tasks deleted successfully with IDs: {}", ids);
     }
 
     private Task getTask(Long id) {
-        log.debug("Request to update task with ID: {}", id);
         return taskRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
+                .orElseThrow(() -> new TaskNotFoundException(id));
     }
+
 }

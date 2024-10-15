@@ -16,7 +16,7 @@ public interface TaskService {
 
     List<TaskDTO> findAll();
 
-    boolean delete(long id);
+    void delete(long id);
 
     void deleteAll(List<Long> ids);
 
